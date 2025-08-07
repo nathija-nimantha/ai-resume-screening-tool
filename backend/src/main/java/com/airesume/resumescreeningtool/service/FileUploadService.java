@@ -56,7 +56,11 @@ public class FileUploadService {
         }
 
         // Generate unique filename
-        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        String originalFilenameRaw = file.getOriginalFilename();
+        if (originalFilenameRaw == null) {
+            throw new IllegalArgumentException("File must have a name");
+        }
+        String originalFilename = StringUtils.cleanPath(originalFilenameRaw);
         String fileExtension = getFileExtension(originalFilename);
         String uniqueFilename = generateUniqueFilename(originalFilename);
 
@@ -91,7 +95,11 @@ public class FileUploadService {
             throw new IllegalArgumentException("File size exceeds maximum allowed size of " + (maxSize / 1024 / 1024) + "MB");
         }
 
-        String filename = StringUtils.cleanPath(file.getOriginalFilename());
+        String originalName = file.getOriginalFilename();
+        if (originalName == null) {
+            throw new IllegalArgumentException("File must have a name");
+        }
+        String filename = StringUtils.cleanPath(originalName);
         if (filename.contains("..")) {
             throw new IllegalArgumentException("Filename contains invalid path sequence: " + filename);
         }
