@@ -1,6 +1,7 @@
 package com.airesume.resumescreeningtool.entity;
 
 public enum UserRole {
+    USER("User"),
     HR_MANAGER("HR Manager"),
     RECRUITER("Recruiter"),
     HIRING_MANAGER("Hiring Manager"),
