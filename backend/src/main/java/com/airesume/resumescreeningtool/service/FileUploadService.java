@@ -27,7 +27,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.airesume.resumescreeningtool.repository.JobPostingRepository;
+import com.airesume.resumescreeningtool.repository.ResumeRepository;
+
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class FileUploadService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUploadService.class);
@@ -42,6 +48,9 @@ public class FileUploadService {
     private long maxSize;
 
     private static final List<String> SUPPORTED_EXTENSIONS = Arrays.asList("pdf", "doc", "docx", "txt");
+
+    private final ResumeRepository resumeRepository;
+    private final JobPostingRepository jobPostingRepository;
 
     /**
      * Stores the uploaded file and returns file information
@@ -86,7 +95,7 @@ public class FileUploadService {
     /**
      * Validates the uploaded file
      */
-    private void validateFile(MultipartFile file) {
+    public void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Cannot store empty file");
         }
