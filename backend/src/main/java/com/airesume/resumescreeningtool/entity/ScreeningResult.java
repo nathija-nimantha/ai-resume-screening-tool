@@ -24,44 +24,44 @@ public class ScreeningResult {
     private Long id;
 
     @Column(name = "overall_score", precision = 5, scale = 2)
-    private BigDecimal overallScore; // Overall matching score (0-100)
+    private BigDecimal overallScore;
 
     @Column(name = "skills_score", precision = 5, scale = 2)
-    private BigDecimal skillsScore; // Skills matching score (0-100)
+    private BigDecimal skillsScore;
 
     @Column(name = "experience_score", precision = 5, scale = 2)
-    private BigDecimal experienceScore; // Experience matching score (0-100)
+    private BigDecimal experienceScore;
 
     @Column(name = "education_score", precision = 5, scale = 2)
-    private BigDecimal educationScore; // Education matching score (0-100)
+    private BigDecimal educationScore;
 
     @Column(name = "ai_feedback", columnDefinition = "TEXT")
-    private String aiFeedback; // Detailed AI analysis and feedback
+    private String aiFeedback;
 
     @Column(name = "strengths", columnDefinition = "TEXT")
-    private String strengths; // Candidate's strengths
+    private String strengths;
 
     @Column(name = "weaknesses", columnDefinition = "TEXT")
-    private String weaknesses; // Candidate's weaknesses or gaps
+    private String weaknesses;
 
     @Column(name = "recommendation", columnDefinition = "TEXT")
-    private String recommendation; // AI recommendation
+    private String recommendation;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "recommendation_status", nullable = false)
     private RecommendationStatus recommendationStatus;
 
     @Column(name = "matching_keywords", columnDefinition = "TEXT")
-    private String matchingKeywords; // Keywords that matched from job requirements
+    private String matchingKeywords;
 
     @Column(name = "missing_keywords", columnDefinition = "TEXT")
-    private String missingKeywords; // Keywords missing from resume
+    private String missingKeywords;
 
     @Column(name = "screening_version")
-    private String screeningVersion; // Version of the AI model used
+    private String screeningVersion;
 
     @Column(name = "processing_time")
-    private Long processingTime; // Time taken to process in milliseconds
+    private Long processingTime;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -69,22 +69,18 @@ public class ScreeningResult {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Many screening results can belong to one job posting
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_posting_id", nullable = false)
     private JobPosting jobPosting;
 
-    // Many screening results can belong to one resume
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resume_id", nullable = false)
     private Resume resume;
 
-    // Many screening results can be created by one user (who initiated the screening)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "screened_by")
     private User screenedBy;
 
-    // Constructors
     public ScreeningResult() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -97,7 +93,6 @@ public class ScreeningResult {
         this.screenedBy = screenedBy;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -250,13 +245,11 @@ public class ScreeningResult {
         this.screenedBy = screenedBy;
     }
 
-    // Lifecycle callbacks
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // toString method
     @Override
     public String toString() {
         return "ScreeningResult{" +
@@ -267,3 +260,4 @@ public class ScreeningResult {
                 '}';
     }
 }
+
