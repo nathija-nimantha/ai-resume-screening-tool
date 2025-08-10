@@ -53,7 +53,7 @@ public class Resume {
     private Integer yearsOfExperience;
 
     @Column(name = "skills", columnDefinition = "TEXT")
-    private String skills; // Comma-separated or JSON format
+    private String skills;
 
     @Column(name = "education", columnDefinition = "TEXT")
     private String education;
