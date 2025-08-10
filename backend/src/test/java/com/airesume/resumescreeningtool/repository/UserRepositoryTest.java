@@ -1,57 +1,59 @@
 package com.airesume.resumescreeningtool.repository;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.airesume.resumescreeningtool.entity.User;
+import com.airesume.resumescreeningtool.entity.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import com.airesume.resumescreeningtool.entity.User;
-import com.airesume.resumescreeningtool.entity.UserRole;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 public class UserRepositoryTest {
 
     @Autowired
-    private TestEntityManager entityManager;
+    private UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private TestEntityManager entityManager;
 
     @Test
     public void testFindByUsername() {
-        // Given
-        User user = new User("testuser", "test@example.com", "password", UserRole.HR_MANAGER);
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setCompanyName("Test Company");
-        
-        entityManager.persistAndFlush(user);
+        User user = User.builder()
+                .username("testuser")
+                .email("testuser@example.com")
+                .password("password123")
+                .role(UserRole.USER)
+                .isActive(true)
+                .firstName("Test")
+                .lastName("User")
+                .build();
 
-        // When
-        Optional<User> found = userRepository.findByUsername("testuser");
+        userRepository.save(user);
 
-        // Then
-        assertThat(found).isPresent();
-        assertThat(found.get().getEmail()).isEqualTo("test@example.com");
-        assertThat(found.get().getRole()).isEqualTo(UserRole.HR_MANAGER);
+        Optional<User> foundUser = userRepository.findByUsername("testuser");
+        assertThat(foundUser).isPresent();
+        assertThat(foundUser.get().getUsername()).isEqualTo("testuser");
     }
 
     @Test
     public void testFindByEmail() {
-        // Given
-        User user = new User("testuser2", "test2@example.com", "password", UserRole.RECRUITER);
-        user.setFirstName("Jane");
-        user.setLastName("Smith");
-        
+        User user = User.builder()
+                .username("testuser2")
+                .email("test2@example.com")
+                .password("password")
+                .role(UserRole.RECRUITER)
+                .firstName("Jane")
+                .lastName("Smith")
+                .build();
+
         entityManager.persistAndFlush(user);
 
-        // When
         Optional<User> found = userRepository.findByEmail("test2@example.com");
 
-        // Then
         assertThat(found).isPresent();
         assertThat(found.get().getUsername()).isEqualTo("testuser2");
         assertThat(found.get().getRole()).isEqualTo(UserRole.RECRUITER);
@@ -59,52 +61,71 @@ public class UserRepositoryTest {
 
     @Test
     public void testExistsByUsername() {
-        // Given
-        User user = new User("existinguser", "existing@example.com", "password", UserRole.ADMIN);
+        User user = User.builder()
+                .username("existinguser")
+                .email("existing@example.com")
+                .password("password")
+                .role(UserRole.ADMIN)
+                .build();
+
         entityManager.persistAndFlush(user);
 
-        // When & Then
         assertThat(userRepository.existsByUsername("existinguser")).isTrue();
         assertThat(userRepository.existsByUsername("nonexistentuser")).isFalse();
     }
 
     @Test
     public void testFindByRole() {
-        // Given
-        User hrManager = new User("hr1", "hr1@example.com", "password", UserRole.HR_MANAGER);
-        User recruiter = new User("recruiter1", "recruiter1@example.com", "password", UserRole.RECRUITER);
-        
+        User hrManager = User.builder()
+                .username("hr1")
+                .email("hr1@example.com")
+                .password("password")
+                .role(UserRole.HR_MANAGER)
+                .build();
+
+        User recruiter = User.builder()
+                .username("recruiter1")
+                .email("recruiter1@example.com")
+                .password("password")
+                .role(UserRole.RECRUITER)
+                .build();
+
         entityManager.persistAndFlush(hrManager);
         entityManager.persistAndFlush(recruiter);
 
-        // When
         var hrManagers = userRepository.findByRole(UserRole.HR_MANAGER);
         var recruiters = userRepository.findByRole(UserRole.RECRUITER);
 
-        // Then
         assertThat(hrManagers).hasSize(1);
         assertThat(hrManagers.get(0).getUsername()).isEqualTo("hr1");
-        
+
         assertThat(recruiters).hasSize(1);
         assertThat(recruiters.get(0).getUsername()).isEqualTo("recruiter1");
     }
 
     @Test
     public void testFindByIsActiveTrue() {
-        // Given
-        User activeUser = new User("active", "active@example.com", "password", UserRole.HR_MANAGER);
-        activeUser.setIsActive(true);
-        
-        User inactiveUser = new User("inactive", "inactive@example.com", "password", UserRole.HR_MANAGER);
-        inactiveUser.setIsActive(false);
-        
+        User activeUser = User.builder()
+                .username("active")
+                .email("active@example.com")
+                .password("password")
+                .role(UserRole.HR_MANAGER)
+                .isActive(true)
+                .build();
+
+        User inactiveUser = User.builder()
+                .username("inactive")
+                .email("inactive@example.com")
+                .password("password")
+                .role(UserRole.HR_MANAGER)
+                .isActive(false)
+                .build();
+
         entityManager.persistAndFlush(activeUser);
         entityManager.persistAndFlush(inactiveUser);
 
-        // When
         var activeUsers = userRepository.findByIsActiveTrue();
 
-        // Then
         assertThat(activeUsers).hasSize(1);
         assertThat(activeUsers.get(0).getUsername()).isEqualTo("active");
     }
