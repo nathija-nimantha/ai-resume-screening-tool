@@ -38,7 +38,7 @@ public class JobPosting {
     private String experienceLevel;
 
     @Column(name = "job_type")
-    private String jobType; // Full-time, Part-time, Contract, etc.
+    private String jobType;
 
     @Column(name = "salary_range")
     private String salaryRange;
