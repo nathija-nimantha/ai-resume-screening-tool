@@ -1,32 +1,42 @@
 package com.airesume.resumescreeningtool.controller;
 
-import com.airesume.resumescreeningtool.dto.ResumeUploadResponseDto;
-import com.airesume.resumescreeningtool.entity.Resume;
-import com.airesume.resumescreeningtool.entity.ResumeStatus;
-import com.airesume.resumescreeningtool.service.ResumeService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.airesume.resumescreeningtool.dto.ResumeUploadResponseDto;
+import com.airesume.resumescreeningtool.entity.Resume;
+import com.airesume.resumescreeningtool.entity.ResumeStatus;
+import com.airesume.resumescreeningtool.service.ResumeService;
+
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/resumes")
-@CrossOrigin(origins = "*") // Configure this properly for production
+@CrossOrigin(origins = "http://127.0.0.1:5500") // Allow requests from this origin
+@RequiredArgsConstructor // Generates a constructor for final fields
 public class ResumeController {
 
     private static final Logger logger = LoggerFactory.getLogger(ResumeController.class);
 
-    @Autowired
-    private ResumeService resumeService;
+    private final ResumeService resumeService;
 
     /**
      * Upload a resume for a specific job posting
