@@ -1,7 +1,9 @@
 package com.airesume.resumescreeningtool.service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,9 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.airesume.resumescreeningtool.repository.JobPostingRepository;
-import com.airesume.resumescreeningtool.repository.ResumeRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,10 +46,12 @@ public class FileUploadService {
     @Value("${file.upload.max-size}")
     private long maxSize;
 
-    private static final List<String> SUPPORTED_EXTENSIONS = Arrays.asList("pdf", "doc", "docx", "txt");
+    @Value("${file.upload.supported-extensions}")
+    private String supportedExtensions;
 
-    private final ResumeRepository resumeRepository;
-    private final JobPostingRepository jobPostingRepository;
+    private List<String> getSupportedExtensions() {
+        return Arrays.asList(supportedExtensions.split(","));
+    }
 
     /**
      * Stores the uploaded file and returns file information
@@ -110,7 +111,7 @@ public class FileUploadService {
         }
         String filename = StringUtils.cleanPath(originalName);
         if (filename.contains("..")) {
-            throw new IllegalArgumentException("Filename contains invalid path sequence: " + filename);
+            throw new IllegalArgumentException("Invalid filename: " + filename + ". Filenames cannot contain '..'.");
         }
 
         String contentType = file.getContentType();
@@ -120,8 +121,8 @@ public class FileUploadService {
         }
 
         String extension = getFileExtension(filename).toLowerCase();
-        if (!SUPPORTED_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("File extension not supported: " + extension);
+        if (!getSupportedExtensions().contains(extension)) {
+            throw new IllegalArgumentException("Unsupported file extension: " + extension + ". Supported extensions are: " + getSupportedExtensions());
         }
     }
 
@@ -150,7 +151,7 @@ public class FileUploadService {
             }
         } catch (IOException e) {
             logger.error("Error extracting text from file: {}", e.getMessage());
-            return ""; // Return empty string if extraction fails
+            throw new RuntimeException("Failed to extract text from file", e);
         }
     }
 
@@ -186,10 +187,21 @@ public class FileUploadService {
     }
 
     /**
-     * Extracts text from TXT file
+     * Extracts text from a TXT file.
+     *
+     * @param inputStream the input stream of the file
+     * @return the extracted text
+     * @throws IOException if an I/O error occurs
      */
     private String extractTextFromTXT(InputStream inputStream) throws IOException {
-        return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        StringBuilder textBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                textBuilder.append(line).append(System.lineSeparator());
+            }
+        }
+        return textBuilder.toString();
     }
 
     /**
@@ -227,7 +239,7 @@ public class FileUploadService {
             logger.info("File deleted successfully: {}", filename);
             return true;
         } catch (IOException e) {
-            logger.error("Error deleting file: {}", e.getMessage());
+            logger.error("Error deleting file '{}': {}", filename, e.getMessage());
             return false;
         }
     }
